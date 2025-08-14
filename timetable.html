@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Digital School Bell</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f0f0f;
+      color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;  /* vertical center */
+      align-items: center;      /* horizontal center */
+      height: 100vh;            /* full height */
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 2em;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      margin-bottom: 5px;
+    }
+
+    #clock {
+      font-size: 1.2em;
+      color: #ffcc00;
+      text-shadow: 0 0 8px #ffcc00;
+      margin-bottom: 15px;
+    }
+
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: #1c1c1c;
+      border-radius: 10px;
+      overflow: hidden;
+      animation: glowingBorder 3s infinite;
+    }
+
+    @keyframes glowingBorder {
+      0% { box-shadow: 0 0 10px #00ffff; }
+      25% { box-shadow: 0 0 10px #ff00ff; }
+      50% { box-shadow: 0 0 10px #00ff99; }
+      75% { box-shadow: 0 0 10px #ffff00; }
+      100% { box-shadow: 0 0 10px #00ffff; }
+    }
+
+    th, td {
+      padding: 15px;
+      border: 1px solid #333;
+      text-align: center;
+    }
+
+    th {
+      background-color: #00ffff;
+      color: #000;
+    }
+
+    td {
+      color: #f0f0f0;
+    }
+
+    tr {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    tr:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      transform: scale(1.01);
+      transition: 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    button {
+      font-size: 14px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 2px;
+      transition: 0.3s ease;
+    }
+
+    .absent-btn {
+      background-color: #ff007f;
+      color: white;
+      box-shadow: 0 0 8px #ff007f, 0 0 16px #ff007f;
+    }
+
+    .absent-btn:hover {
+      background-color: #e60073;
+      box-shadow: 0 0 12px #ff3399, 0 0 20px #ff3399;
+    }
+
+    .change-btn {
+      background-color: #00ff99;
+      color: #000;
+      box-shadow: 0 0 6px #00ff99, 0 0 12px #00ff99;
+    }
+
+    .change-btn:hover {
+      background-color: #00cc7a;
+      box-shadow: 0 0 10px #00ffcc, 0 0 18px #00ffcc;
+    }
+
+    .absent {
+      background-color: #400000;
+      color: #ffaaaa;
+      box-shadow: inset 0 0 10px #ff4d4d;
+    }
+
+    .substitute {
+      background-color: #002d00;
+      color: #b6ffb6;
+      box-shadow: inset 0 0 10px #00ff80;
+    }
+
+    /* Bell animation */
+    @keyframes ringBell {
+      0% { transform: rotate(0); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+      100% { transform: rotate(0); }
+    }
+
+    #bell-icon {
+      font-size: 2em;
+      margin-top: 10px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h2>Smart Digital School Bell</h2>
+  <div id="clock"></div>
+  <button class="absent-btn" onclick="markAbsent()">Mark Myself Leave</button>
+  <div id="bell-icon">🔔</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th>Time</th>
+        <th>Subject</th>
+        <th>Teacher</th>
+        <th>Staff ID</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="timetable">
+      <!-- Timetable will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    const API_BASE = "http://localhost:5600";
+
+    // Live Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clock").textContent =
+        now.toLocaleTimeString("en-GB"); // 24-hour format
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchTimetable();
+    });
+
+    function convertTo24Hour(timeRange) {
+      const [start, end] = timeRange.split(" - ");
+      const format = (time) => {
+        let [hour, minute] = time.split(":");
+        hour = parseInt(hour);
+        return `${hour.toString().padStart(2, '0')}:${minute}`;
+      };
+      return `${format(start)} - ${format(end)}`;
+    }
+
+    function fetchTimetable() {
+      fetch(`${API_BASE}/timetable`)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById("timetable");
+          tbody.innerHTML = "";
+          data.forEach((period, i) => {
+            let row = document.createElement("tr");
+            row.style.animationDelay = `${i * 0.1}s`;
+            row.className =
+              period.status === "absent"
+                ? "absent"
+                : period.status === "substitute"
+                ? "substitute"
+                : "";
+
+            row.innerHTML = `
+              <td>${period.period}</td>
+              <td>${convertTo24Hour(period.time)}</td>
+              <td>${period.subject}</td>
+              <td>${period.teacher}</td>
+              <td>${period.staffId}</td>
+              <td>
+                <button class="change-btn" onclick="changeTeacher(${period.period})">Change</button>
+                <button class="change-btn" onclick="editPeriod(${period.period})">Edit</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        });
+    }
+
+    function ringBellAnimation() {
+      const bell = document.getElementById("bell-icon");
+      bell.style.animation = "ringBell 0.5s ease";
+      setTimeout(() => { bell.style.animation = ""; }, 500);
+    }
+
+    function markAbsent() {
+      const staffId = prompt("Enter your Staff ID to mark yourself absent:");
+      if (staffId) {
+        fetch(`${API_BASE}/mark-absent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ staffId })
+        })
+        .then(res => res.json())
+        .then(() => {
+          alert("Marked as absent.");
+          ringBellAnimation();
+          fetchTimetable();
+        });
+      }
+    }
+
+    function changeTeacher(period) {
+      let newTeacher = prompt("Enter Substitute Teacher Name:");
+      let newStaffId = prompt("Enter Substitute Staff ID:");
+      if (newTeacher && newStaffId) {
+        let approval = confirm(`${newTeacher} (ID: ${newStaffId}), do you approve taking this period?`);
+        if (approval) {
+          fetch(`${API_BASE}/assign-substitute`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ period, newTeacher, newStaffId })
+          })
+          .then(res => res.json())
+          .then(() => {
+            alert("Substitute assigned.");
+            ringBellAnimation();
+            fetchTimetable();
+          });
+        } else {
+          alert("Substitute did not approve.");
+        }
+      }
+    }
+
+    function editPeriod(period) {
+      let newTime = prompt("Enter new Time (e.g. 13:00 - 13:45):");
+      let newSubject = prompt("Enter new Subject:");
+      let newTeacher = prompt("Enter new Teacher Name:");
+      let newStaffId = prompt("Enter new Staff ID:");
+
+      if (newTime && newSubject && newTeacher && newStaffId) {
+        fetch(`${API_BASE}/update-period`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            period,
+            time: newTime,
+            subject: newSubject,
+            teacher: newTeacher,
+            staffId: newStaffId
+          })
+        })
+        .then(res => res.json())
+        .then(() => {
+          alert(`Period ${period} updated.`);
+          ringBellAnimation();
+          fetchTimetable();
+        });
+      } else {
+        alert("All fields are required to update the period.");
+      }
+    }
+  </script>
+</body>
+</html>

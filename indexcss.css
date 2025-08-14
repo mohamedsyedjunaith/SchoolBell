@@ -1,0 +1,138 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: #0b0b0c;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    overflow-x: hidden;
+  }
+  
+  .container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: auto;
+    position: relative;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+  }
+  
+  .logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #00ffe7;
+    text-shadow: 0 0 10px #00ffe7;
+  }
+  
+  nav a {
+    margin-left: 2rem;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+  }
+  
+  nav a:hover {
+    color: #00ffe7;
+  }
+  
+  .hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .text {
+    max-width: 600px;
+  }
+  
+  .text h2 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ff00cc;
+    text-shadow: 0 0 10px #ff00cc;
+  }
+  
+  .text p {
+    font-size: 1.1rem;
+    color: #ccc;
+    margin-bottom: 2rem;
+  }
+  
+  .cta-btn {
+    background: #00ffe7;
+    color: #000;
+    padding: 0.8rem 1.6rem;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #00ffe7, 0 0 20px #00ffe7;
+    transition: 0.3s ease;
+  }
+  
+  .cta-btn:hover {
+    background: #0ff;
+    box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+  }
+  
+  .image img {
+    max-width: 450px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px #0ff;
+    height: 300px;
+  }
+  .image img:hover{
+    transform: scale(1.1);
+    transition: 1s;
+  }
+  
+  .neon-circle {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    filter: blur(40px);
+    z-index: -1;
+  }
+  
+  .neon-circle.blue {
+    background: #00ffe7;
+    top: 10%;
+    right: 5%;
+  }
+  
+  .neon-circle.pink {
+    background: #ff00cc;
+    bottom: 5%;
+    left: 0;
+  }
+  .carousel-inner .carousel-item img {
+    max-height: 500px;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+  }
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    background-color: #00f7ff;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .carousel-item img {
+    height: 50%;
+    width: 95%;
+    border: none;
+    border-radius: 15px;
+    object-fit: cover;
+}
+  
